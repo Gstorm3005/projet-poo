@@ -1,0 +1,132 @@
+/*------------------------------------------------------------
+*        Script SQLSERVER 
+------------------------------------------------------------*/
+
+
+/*------------------------------------------------------------
+-- Table: client
+------------------------------------------------------------*/
+CREATE TABLE client(
+	ID_client            INT IDENTITY (1,1) NOT NULL ,
+	Nom_client           VARCHAR (100) NOT NULL ,
+	Prenom_client        VARCHAR (100) NOT NULL ,
+	Date_de_naissance    DATETIME NOT NULL ,
+	Date_premier_achat   DATETIME NOT NULL  ,
+	CONSTRAINT client_PK PRIMARY KEY (ID_client)
+);
+
+
+/*------------------------------------------------------------
+-- Table: adresse
+------------------------------------------------------------*/
+CREATE TABLE adresse(
+	ID_adresse    INT IDENTITY (1,1) NOT NULL ,
+	Adresse       VARCHAR (100) NOT NULL ,
+	ville         TEXT CHECK (ville IN ("alger","blida","oran","boumerdasse","tipaza","tbessa","annaba","telemssan"))  ,
+	Code_postal   INT  NOT NULL  ,
+	CONSTRAINT adresse_PK PRIMARY KEY (ID_adresse)
+);
+
+
+/*------------------------------------------------------------
+-- Table: personnel
+------------------------------------------------------------*/
+CREATE TABLE personnel(
+	ID_personnel       INT IDENTITY (1,1) NOT NULL ,
+	Nom_personnel      VARCHAR (100) NOT NULL ,
+	Prenom_personnel   VARCHAR (100) NOT NULL ,
+	Date_embauche      DATETIME NOT NULL ,
+	ID_adresse         INT  NOT NULL  ,
+	CONSTRAINT personnel_PK PRIMARY KEY (ID_personnel)
+
+	,CONSTRAINT personnel_adresse_FK FOREIGN KEY (ID_adresse) REFERENCES adresse(ID_adresse)
+);
+
+
+/*------------------------------------------------------------
+-- Table: article
+------------------------------------------------------------*/
+CREATE TABLE article(
+	ID_arcticle          INT IDENTITY (1,1) NOT NULL ,
+	References_article   VARCHAR (100) NOT NULL ,
+	Quantite__stock      VARCHAR (100) NOT NULL ,
+	Prix_HT              FLOAT  NOT NULL ,
+	Nature_article       TEXT CHECK (Nature_article IN ("Test & Mesure","Cartes interfaces","Arduino","Raspberry pi","Control"))   ,
+	CONSTRAINT article_PK PRIMARY KEY (ID_arcticle)
+);
+
+
+/*------------------------------------------------------------
+-- Table: commande
+------------------------------------------------------------*/
+CREATE TABLE commande(
+	ID_commande         INT IDENTITY (1,1) NOT NULL ,
+	Date_emission       DATETIME NOT NULL ,
+	Date_livraison      DATETIME NOT NULL ,
+	Reference           VARCHAR (100) NOT NULL ,
+	Quantiter_article   INT  NOT NULL ,
+	ID_client           INT  NOT NULL ,
+	ID_arcticle         INT  NOT NULL  ,
+	CONSTRAINT commande_PK PRIMARY KEY (ID_commande)
+
+	,CONSTRAINT commande_client_FK FOREIGN KEY (ID_client) REFERENCES client(ID_client)
+	,CONSTRAINT commande_article0_FK FOREIGN KEY (ID_arcticle) REFERENCES article(ID_arcticle)
+);
+
+
+/*------------------------------------------------------------
+-- Table: payment
+------------------------------------------------------------*/
+CREATE TABLE payment(
+	ID_payment      INT IDENTITY (1,1) NOT NULL ,
+	Date_payment    DATETIME NOT NULL ,
+	Moyen_payment   TEXT CHECK (Moyen_payment IN ("visa","master_card","paypal"))  ,
+	ID_client       INT  NOT NULL ,
+	ID_commande     INT  NOT NULL  ,
+	CONSTRAINT payment_PK PRIMARY KEY (ID_payment)
+
+	,CONSTRAINT payment_client_FK FOREIGN KEY (ID_client) REFERENCES client(ID_client)
+	,CONSTRAINT payment_commande0_FK FOREIGN KEY (ID_commande) REFERENCES commande(ID_commande)
+);
+
+
+/*------------------------------------------------------------
+-- Table: supervise
+------------------------------------------------------------*/
+CREATE TABLE supervise(
+	ID_personnel             INT  NOT NULL ,
+	ID_personnel_supervise   INT  NOT NULL  ,
+	CONSTRAINT supervise_PK PRIMARY KEY (ID_personnel,ID_personnel_supervise)
+
+	,CONSTRAINT supervise_personnel_FK FOREIGN KEY (ID_personnel) REFERENCES personnel(ID_personnel)
+	,CONSTRAINT supervise_personnel0_FK FOREIGN KEY (ID_personnel_supervise) REFERENCES personnel(ID_personnel)
+);
+
+
+/*------------------------------------------------------------
+-- Table: adresse_livraison
+------------------------------------------------------------*/
+CREATE TABLE adresse_livraison(
+	ID_client    INT  NOT NULL ,
+	ID_adresse   INT  NOT NULL  ,
+	CONSTRAINT adresse_livraison_PK PRIMARY KEY (ID_client,ID_adresse)
+
+	,CONSTRAINT adresse_livraison_client_FK FOREIGN KEY (ID_client) REFERENCES client(ID_client)
+	,CONSTRAINT adresse_livraison_adresse0_FK FOREIGN KEY (ID_adresse) REFERENCES adresse(ID_adresse)
+);
+
+
+/*------------------------------------------------------------
+-- Table: adresse_facturation
+------------------------------------------------------------*/
+CREATE TABLE adresse_facturation(
+	ID_adresse   INT  NOT NULL ,
+	ID_client    INT  NOT NULL  ,
+	CONSTRAINT adresse_facturation_PK PRIMARY KEY (ID_adresse,ID_client)
+
+	,CONSTRAINT adresse_facturation_adresse_FK FOREIGN KEY (ID_adresse) REFERENCES adresse(ID_adresse)
+	,CONSTRAINT adresse_facturation_client0_FK FOREIGN KEY (ID_client) REFERENCES client(ID_client)
+);
+
+
+
